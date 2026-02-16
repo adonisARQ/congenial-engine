@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARQ Logística Pro - Adonis Ramírez Q.</title>
+    <style>
+        :root { --neon-blue: #00d2ff; --neon-pink: #ff007f; --dark-bg: #0b0f1a; --card-bg: #161b2c; --text: #e2e8f0; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--dark-bg); color: var(--text); margin: 0; display: flex; overflow-x: hidden; perspective: 1200px; }
+        
+        /* LOGIN 3D */
+        #login-screen { position: fixed; inset: 0; background: radial-gradient(circle, #1e293b 0%, #0b0f1a 100%); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: 0.8s; }
+        .login-box { background: var(--card-bg); padding: 45px; border-radius: 30px; border: 2px solid var(--neon-blue); text-align: center; width: 340px; box-shadow: 0 20px 50px rgba(0, 210, 255, 0.3); transform: rotateX(10deg); animation: float3d 4s infinite ease-in-out; }
+        @keyframes float3d { 0%, 100% { transform: rotateX(10deg) translateY(0); } 50% { transform: rotateX(5deg) translateY(-15px); } }
+        .login-box input { width: 100%; padding: 15px; margin: 25px 0; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; text-align: center; font-size: 1.5rem; letter-spacing: 4px; box-sizing: border-box; }
+
+        /* NAVEGACIÓN */
+        .sidebar { width: 270px; background: rgba(22, 27, 44, 0.95); border-right: 1px solid var(--neon-blue); min-height: 100vh; padding: 25px; position: fixed; z-index: 1000; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+        .main { margin-left: 300px; padding: 40px; width: calc(100% - 300px); transition: 0.3s; transform-style: preserve-3d; }
+        .nav-btn { width: 100%; padding: 14px; background: transparent; border: none; color: var(--text); text-align: left; cursor: pointer; border-radius: 12px; margin-bottom: 10px; font-weight: bold; transition: 0.3s; border-left: 4px solid transparent; }
+        .nav-btn.active, .nav-btn:hover { background: rgba(0, 210, 255, 0.1); color: var(--neon-blue); border-left: 4px solid var(--neon-blue); transform: translateZ(10px); }
+        
+        /* SECCIONES Y TARJETAS */
+        .seccion { display: none; }
+        .seccion.active { display: block; animation: openIn 0.5s ease-out; }
+        @keyframes openIn { from { opacity: 0; transform: rotateX(-10deg); } to { opacity: 1; transform: rotateX(0); } }
+        .card { background: var(--card-bg); padding: 30px; border-radius: 25px; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
+        label { font-size: 0.7rem; color: var(--neon-blue); display: block; margin-bottom: 5px; font-weight: 800; text-transform: uppercase; }
+        input, select { background: #0f172a; border: 1px solid #1e293b; color: white; padding: 12px; border-radius: 10px; width: 100%; box-sizing: border-box; }
+        
+        /* TABLAS E IMÁGENES */
+        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; margin-top: 20px; }
+        th { color: var(--neon-blue); padding: 12px; text-align: left; font-size: 0.8rem; }
+        td { background: rgba(255,255,255,0.03); padding: 15px; font-size: 0.9rem; }
+        td:first-child { border-radius: 12px 0 0 12px; }
+        td:last-child { border-radius: 0 12px 12px 0; }
+        .btn-main { background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink)); color: white; border: none; padding: 16px; border-radius: 14px; cursor: pointer; width: 100%; font-weight: 900; text-transform: uppercase; transition: 0.3s; }
+        .img-table { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 2px solid var(--neon-blue); }
+
+        /* MODAL E IMPRESIÓN */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 8000; align-items: center; justify-content: center; }
+        .modal-content { background: var(--card-bg); padding: 40px; border-radius: 30px; width: 85%; border: 1px solid var(--neon-blue); }
+        
+        @media print {
+            .sidebar, .btn-main, .no-print, th:last-child, td:last-child { display: none !important; }
+            .main { margin: 0; width: 100%; }
+            body { background: white; color: black; }
+            .modal-content { background: white !important; color: black !important; border: none !important; }
+            table, td, th { border: 1px solid black !important; color: black !important; }
+            .firma-box { display: flex !important; justify-content: space-around; margin-top: 80px; color: black !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="login-screen">
+    <div class="login-box">
+        <h2 style="color:var(--neon-blue);">ARQ LOGÍSTICA PRO</h2>
+        <input type="password" id="passIn" placeholder="••••">
+        <button onclick="login()" class="btn-main">AUTENTICAR</button>
+    </div>
+</div>
+
+<div class="sidebar no-print">
+    <h2 style="color: var(--neon-blue); font-size: 1.2rem; margin-bottom: 20px;">SUIZO V28</h2>
+    <button class="nav-btn active" onclick="verSeccion('reg')">➕ Registro Conduce</button>
+    <button class="nav-btn" onclick="verSeccion('mov')">📦 Movimientos</button>
+    <button class="nav-btn" onclick="verSeccion('stock')">📊 Inventario Real</button>
+    <button class="nav-btn" onclick="verSeccion('aud')">🔍 Auditoría Total</button>
+    <button class="nav-btn" onclick="verSeccion('bodegas')">🏢 Gestión/Backup</button>
+</div>
+
+<div class="main">
+    <div id="seccion-reg" class="seccion active">
+        <div class="card">
+            <h3>1. Trayectoria</h3>
+            <div class="grid">
+                <div><label>Fecha</label><input type="date" id="fechaGral"></div>
+                <div><label>Origen</label><select id="bodegaOrigen"></select></div>
+                <div><label>Destino</label><select id="bodegaDestino"></select></div>
+                <div><label>Tipo</label><select id="tipoMov" onchange="borrador=[];renderBorrador();"><option value="Entrada">📥 Entrada</option><option value="Salida">📤 Salida</option></select></div>
+            </div>
+        </div>
+        <div class="card">
+            <h3>2. Añadir Materiales</h3>
+            <div class="grid">
+                <div><label>Categoría</label><select id="catMat" onchange="modoMat()"><option value="Material">Material</option><option value="Serie">Serie (Transformador)</option></select></div>
+                <div><label>Código</label><input type="text" id="codMat" oninput="autocompletar()"></div>
+                <div><label>Descripción</label><input type="text" id="descMat"></div>
+                <div id="boxD"><label id="lblD">Cantidad</label><input type="number" id="valD"></div>
+                <div><label>Estado</label><select id="estadoMat"><option value="Nuevo">Nuevo</option><option value="Remoción">Remoción</option></select></div>
+                <div><label>Foto URL</label><input type="text" id="fotoMat"></div>
+            </div>
+            <button onclick="addBorrador()" class="btn-main" style="margin-top:20px; background: var(--neon-blue);">+ AÑADIR AL LISTADO</button>
+            <table id="tBorrador"><thead><tr><th>Img</th><th>Código</th><th>Cant</th><th>Serie</th><th>Estado</th><th>Acción</th></tr></thead><tbody id="cBorrador"></tbody></table>
+            <button onclick="guardarTodo()" class="btn-main" style="background:var(--neon-pink); margin-top:30px;">REGISTRAR CONDUCE FINAL</button>
+        </div>
+    </div>
+
+    <div id="seccion-stock" class="seccion">
+        <div class="card">
+            <h3>Existencias por Bodega</h3>
+            <div class="grid" style="margin-bottom:20px;">
+                <input type="text" id="stock_busc" placeholder="🔍 Filtrar..." onkeyup="renderStock()">
+                <select id="stock_bod" onchange="renderStock()"></select>
+            </div>
+            <div id="contStock"></div>
+        </div>
+    </div>
+
+    <div id="seccion-aud" class="seccion">
+        <div class="card">
+            <h3>Auditoría de Trazabilidad</h3>
+            <div class="grid">
+                <input type="date" id="aud_desde" onchange="auditar()">
+                <input type="date" id="aud_hasta" onchange="auditar()">
+                <select id="aud_bod" onchange="auditar()"></select>
+                <input type="text" id="aud_cod" placeholder="Código..." onkeyup="auditar()">
+            </div>
+            <table id="tAud"><thead><tr><th>Fecha</th><th>Bodega</th><th>Tipo</th><th>Mat</th><th>Cant</th><th>Serie</th><th>Est</th></tr></thead><tbody id="cAud"></tbody></table>
+        </div>
+    </div>
+
+    <div id="seccion-bodegas" class="seccion">
+        <div class="card" style="border: 1px solid var(--neon-pink);">
+            <h3>🛡️ SISTEMA DE SEGURIDAD (BACKUP)</h3>
+            <div class="grid">
+                <button onclick="descargarBackup()" class="btn-main" style="background: #059669;">📥 DESCARGAR RESPALDO</button>
+                <input type="file" id="importFile" style="display:none" onchange="subirBackup(event)">
+                <button onclick="document.getElementById('importFile').click()" class="btn-main" style="background: #2563eb;">📤 SUBIR RESPALDO</button>
+            </div>
+        </div>
+        <div class="card">
+            <h3>🏢 Gestión Bodegas</h3>
+            <div class="grid"><input type="text" id="nBod"><button onclick="nuevaB()" class="btn-main">Crear Bodega</button></div>
+            <table id="tBod"><thead><tr><th>Bodega</th><th>Acción</th></tr></thead><tbody id="cBod"></tbody></table>
+        </div>
+    </div>
+    
+    <div id="seccion-mov" class="seccion"><div class="card"><h3>Historial</h3><table id="tMov"><thead><tr><th>ID</th><th>Fecha</th><th>Ruta</th><th>Acción</th></tr></thead><tbody id="cMov"></tbody></table></div></div>
+</div>
+
+<div id="modalV" class="modal"><div class="modal-content"><div style="text-align:center;"><h2 id="mT"></h2></div><div id="mC"></div><div class="firma-box" style="display:none;"><div>____________________<br>Entregado por</div><div>____________________<br>Recibido por</div></div><div style="display:flex; gap:15px; margin-top:30px;" class="no-print"><button onclick="window.print()" class="btn-main" style="background:#2563eb;">🖨️ IMPRIMIR</button><button onclick="document.getElementById('modalV').style.display='none'" class="btn-main">Cerrar</button></div></div></div>
+
+<script>
+    let db = JSON.parse(localStorage.getItem('arq_v28_final')) || { movs: [], bodegas: [{nombre: 'ALMACÉN CENTRAL'}], cats: {} };
+    let borrador = [];
+
+    function login() { if(document.getElementById('passIn').value === "1234") { document.getElementById('login-screen').style.opacity='0'; setTimeout(()=>document.getElementById('login-screen').style.display='none', 800); } else alert("Denegado"); }
+    function modoMat() { document.getElementById('lblD').innerText = document.getElementById('catMat').value === 'Serie' ? 'Serie' : 'Cantidad'; }
+    function autocompletar() { const c = document.getElementById('codMat').value; if(db.cats[c]) { document.getElementById('descMat').value = db.cats[c].d; document.getElementById('catMat').value = db.cats[c].t; document.getElementById('fotoMat').value = db.cats[c].f; modoMat(); } }
+
+    function getStockValidado(bod, cod, est, serie = '') {
+        let t = 0;
+        db.movs.forEach(m => m.items.forEach(i => {
+            if(i.c === cod && i.e === est && (serie === '' || i.s === serie)) {
+                if(m.tipo === 'Entrada' && m.destino === bod) t += parseInt(i.q);
+                if(m.tipo === 'Salida' && m.origen === bod) t -= parseInt(i.q);
+            }
+        }));
+        return t;
+    }
+
+    function addBorrador() {
+        const cat = document.getElementById('catMat').value, val = document.getElementById('valD').value, cod = document.getElementById('codMat').value, tipo = document.getElementById('tipoMov').value, est = document.getElementById('estadoMat').value, orig = document.getElementById('bodegaOrigen').value;
+        if(!cod || !val) return alert("Faltan datos");
+        if(tipo === 'Salida' && getStockValidado(orig, cod, est, cat === 'Serie' ? val : '') < (cat === 'Serie' ? 1 : parseInt(val))) return alert("❌ ERROR: No hay stock exacto (Serie/Estado) en esta bodega.");
+        const item = { c: cod, d: document.getElementById('descMat').value, q: cat==='Serie'?1:val, s: cat==='Serie'?val:'', e: est, f: document.getElementById('fotoMat').value || 'https://via.placeholder.com/60' };
+        borrador.push(item); db.cats[cod] = {d: item.d, t: cat, f: item.f}; renderBorrador();
+        ['codMat','descMat','valD','fotoMat'].forEach(id => document.getElementById(id).value='');
+    }
+
+    function renderBorrador() { const c = document.getElementById('cBorrador'); c.innerHTML = ''; borrador.forEach((m, i) => c.insertRow().innerHTML = `<td><img src="${m.f}" class="img-table"></td><td>${m.c}</td><td>${m.q}</td><td>${m.s}</td><td>${m.e}</td><td><button onclick="borrador.splice(${i},1);renderBorrador()">❌</button></td>`); }
+
+    function guardarTodo() {
+        const f = document.getElementById('fechaGral').value;
+        if(!f || borrador.length === 0) return alert("Error");
+        db.movs.push({ id: 'ARQ-'+Date.now().toString().slice(-4), fecha: f, origen: document.getElementById('bodegaOrigen').value, destino: document.getElementById('bodegaDestino').value, tipo: document.getElementById('tipoMov').value, items: [...borrador] });
+        save(); borrador = []; renderBorrador(); alert("✅ Guardado"); verSeccion('mov');
+    }
+
+    function renderStock() {
+        const term = document.getElementById('stock_busc').value.toUpperCase(), bodF = document.getElementById('stock_bod').value;
+        const cont = document.getElementById('contStock'); cont.innerHTML = ''; let stock = {};
+        db.movs.forEach(m => m.items.forEach(i => {
+            const b = m.tipo === 'Entrada' ? m.destino : m.origen;
+            if(!b) return; if(!stock[b]) stock[b] = {}; const key = i.c + '-' + i.e;
+            if(!stock[b][key]) stock[b][key] = {c: i.c, d: i.d, q: 0, s: [], f: i.f, e: i.e};
+            stock[b][key].q += (m.tipo === 'Entrada' ? parseInt(i.q) : -parseInt(i.q));
+            if(i.s && m.tipo === 'Entrada') stock[b][key].s.push(i.s);
+            if(i.s && m.tipo === 'Salida') stock[b][key].s = stock[b][key].s.filter(s => s !== i.s);
+        }));
+        for(let b in stock) {
+            if(bodF && b !== bodF) continue;
+            let h = `<h4>📍 ${b}</h4><table><thead><tr><th>Img</th><th>Cod</th><th>Cant</th><th>Serie</th><th>Est</th></tr></thead><tbody>`;
+            for(let k in stock[b]) { const it = stock[b][k]; if(it.q > 0) h += `<tr><td><img src="${it.f}" class="img-table"></td><td>${it.c}</td><td>${it.q}</td><td>${it.s.join(', ')}</td><td>${it.e}</td></tr>`; }
+            cont.innerHTML += h + '</tbody></table>';
+        }
+    }
+
+    function descargarBackup() {
+        const ahora = new Date();
+        let horas = ahora.getHours();
+        const minutos = ahora.getMinutes().toString().padStart(2, '0');
+        const ampm = horas >= 12 ? 'PM' : 'AM';
+        horas = horas % 12 || 12;
+        const nombre = `ARQ_BACKUP_${ahora.getDate()}-${ahora.getMonth()+1}_${horas}-${minutos}${ampm}.json`;
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+        const a = document.createElement('a'); a.href = dataStr; a.download = nombre; a.click();
+    }
+
+    function subirBackup(e) {
+        const reader = new FileReader();
+        reader.onload = (ev) => { db = JSON.parse(ev.target.result); save(); location.reload(); };
+        reader.readAsText(e.target.files[0]);
+    }
+
+    function auditar() {
+        const d = document.getElementById('aud_desde').value, h = document.getElementById('aud_hasta').value, b = document.getElementById('aud_bod').value, cod = document.getElementById('aud_cod').value.toUpperCase();
+        const body = document.getElementById('cAud'); body.innerHTML = '';
+        db.movs.forEach(m => {
+            if((d && m.fecha < d) || (h && m.fecha > h)) return;
+            m.items.forEach(i => {
+                const bA = m.tipo === 'Entrada' ? m.destino : m.origen;
+                if((b && bA !== b) || (cod && !i.c.includes(cod) && !i.s.includes(cod))) return;
+                body.insertRow().innerHTML = `<td>${m.fecha}</td><td>${bA}</td><td>${m.tipo}</td><td>${i.d}</td><td>${i.q}</td><td>${i.s}</td><td>${i.e}</td>`;
+            });
+        });
+    }
+
+    function verSeccion(id) {
+        document.querySelectorAll('.seccion').forEach(s => s.classList.remove('active'));
+        document.getElementById('seccion-' + id).classList.add('active');
+        if(id === 'stock') { renderFiltroBodStock(); renderStock(); }
+        if(id === 'mov') renderMovs();
+        if(id === 'aud') { renderFiltrosAud(); auditar(); }
+        if(id === 'bodegas') renderBodegas();
+        actualizarSelects();
+    }
+
+    function renderMovs() { const c = document.getElementById('cMov'); c.innerHTML = ''; db.movs.slice().reverse().forEach((m, idx) => { const rIdx = db.movs.length - 1 - idx; c.insertRow().innerHTML = `<td>${m.id}</td><td>${m.fecha}</td><td>${m.origen} ➡️ ${m.destino}</td><td><button onclick="verD(${rIdx})">👁️</button> <button onclick="editM(${rIdx})">✏️</button></td>`; }); }
+    function verD(idx) { const m = db.movs[idx]; document.getElementById('mT').innerText = "CONDUCE: " + m.id; let h = `<table><tr><th>Img</th><th>Cod</th><th>Cant</th><th>Serie</th><th>Est</th></tr>`; m.items.forEach(i => h += `<tr><td><img src="${i.f}" class="img-table"></td><td>${i.c}</td><td>${i.d}</td><td>${i.q}</td><td>${i.s}</td><td>${i.e}</td></tr>`); document.getElementById('mC').innerHTML = h + "</table>"; document.getElementById('modalV').style.display='flex'; }
+    function editM(idx) { if(!confirm("¿Editar?")) return; const m = db.movs[idx]; document.getElementById('fechaGral').value = m.fecha; document.getElementById('tipoMov').value = m.tipo; borrador = [...m.items]; db.movs.splice(idx,1); save(); verSeccion('reg'); renderBorrador(); }
+    function nuevaB() { const n = document.getElementById('nBod').value; if(n){ db.bodegas.push({nombre: n.toUpperCase()}); save(); renderBodegas(); document.getElementById('nBod').value=''; } }
+    function renderBodegas() { const c = document.getElementById('cBod'); c.innerHTML = ''; db.bodegas.forEach((b,i) => c.insertRow().innerHTML = `<td>${b.nombre}</td><td><button onclick="db.bodegas.splice(${i},1);save();renderBodegas()">❌</button></td>`); actualizarSelects(); }
+    function renderFiltroBodStock() { document.getElementById('stock_bod').innerHTML = '<option value="">Bodegas</option>' + db.bodegas.map(b => `<option value="${b.nombre}">${b.nombre}</option>`).join(''); }
+    function renderFiltrosAud() { document.getElementById('aud_bod').innerHTML = '<option value="">Todas</option>' + db.bodegas.map(b => `<option value="${b.nombre}">${b.nombre}</option>`).join(''); }
+    function actualizarSelects() { const h = db.bodegas.map(b => `<option value="${b.nombre}">${b.nombre}</option>`).join(''); document.getElementById('bodegaOrigen').innerHTML = h; document.getElementById('bodegaDestino').innerHTML = h; }
+    function save() { localStorage.setItem('arq_v28_final', JSON.stringify(db)); }
+    
+    actualizarSelects();
+    renderBodegas();
+</script>
+</body>
+</html>
